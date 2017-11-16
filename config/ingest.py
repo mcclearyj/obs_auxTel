@@ -1,6 +1,6 @@
-from lsst.obs.comCam.ingest import ComCamParseTask
+from lsst.obs.auxTel.ingest import AuxTelParseTask
 
-config.parse.retarget(ComCamParseTask)
+config.parse.retarget(AuxTelParseTask)
 
 config.parse.translation = {
     'expTime': 'EXPTIME',

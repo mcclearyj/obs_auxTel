@@ -1,5 +1,5 @@
-from lsst.obs.comCam.ingest import ComCamCalibsParseTask
-config.parse.retarget(ComCamCalibsParseTask)
+from lsst.obs.auxTel.ingest import AuxTelCalibsParseTask
+config.parse.retarget(AuxTelCalibsParseTask)
 
 config.register.columns = {'filter': 'text',
                            'ccd': 'text',

@@ -8,8 +8,8 @@ import lsst.log as lsstLog
 EXTENSIONS = ["fits", "gz", "fz"]  # Filename extensions to strip off
 
 
-class ComCamParseTask(ParseTask):
-    """Parser suitable for comCam data
+class AuxTelParseTask(ParseTask):
+    """Parser suitable for auxTel data
 
     See https://docushare.lsstcorp.org/docushare/dsweb/Get/Version-43119/FITS_Raft.pdf
     """
@@ -84,7 +84,7 @@ class ComCamParseTask(ParseTask):
         raw_wl = md.get("MONOWL")
         wl = int(round(raw_wl))
         if abs(raw_wl-wl) >= 0.1:
-            logger = lsstLog.Log.getLogger('obs.comCam.ingest')
+            logger = lsstLog.Log.getLogger('obs.auxTel.ingest')
             logger.warn(
                 'Translated significantly non-integer wavelength; %s is more than 0.1nm from an integer value', raw_wl)
         return wl
@@ -111,7 +111,7 @@ class ComCamParseTask(ParseTask):
 ##############################################################################################################
 
 
-class ComCamCalibsParseTask(CalibsParseTask):
+class AuxTelCalibsParseTask(CalibsParseTask):
     """Parser for calibs"""
 
     def _translateFromCalibId(self, field, md):

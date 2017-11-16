@@ -21,5 +21,5 @@
 #
 from __future__ import absolute_import
 from .version import *
-from .comCam import *
-from .comCamMapper import *
+from .auxTel import *
+from .auxTelMapper import *

@@ -25,13 +25,13 @@ import lsst.utils as utils
 from lsst.obs.base.yamlCamera import YamlCamera
 
 
-class ComCam(YamlCamera):
-    """The Commissioning Camera (comCam)
+class AuxTel(YamlCamera):
+    """The Auxiliary Telescope (auxTel)
     """
-    packageName = 'obs_comCam'
+    packageName = 'obs_auxTel'
 
     def __init__(self, cameraYamlFile=None):
-        """Construct comCam
+        """Construct auxTel
         """
         if not cameraYamlFile:
             cameraYamlFile = os.path.join(utils.getPackageDir(self.packageName), "policy", "camera.yaml")

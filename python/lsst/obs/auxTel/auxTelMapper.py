@@ -19,7 +19,7 @@
 # the GNU General Public License along with this program.  If not,
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
-"""The ComCam Mapper."""  # necessary to suppress D100 flake8 warning.
+"""The AuxTel Mapper."""  # necessary to suppress D100 flake8 warning.
 
 from __future__ import division, print_function
 
@@ -31,12 +31,12 @@ import lsst.afw.image as afwImage
 from lsst.obs.base import CameraMapper, MakeRawVisitInfo
 import lsst.daf.persistence as dafPersist
 
-from lsst.obs.comCam import ComCam
+from lsst.obs.auxTel import AuxTel
 
-__all__ = ["ComCamMapper"]
+__all__ = ["AuxTelMapper"]
 
 
-class ComCamMakeRawVisitInfo(MakeRawVisitInfo):
+class AuxTelMakeRawVisitInfo(MakeRawVisitInfo):
     """functor to make a VisitInfo from the FITS header of a raw image."""
 
     def setArgDict(self, md, argDict):
@@ -49,7 +49,7 @@ class ComCamMakeRawVisitInfo(MakeRawVisitInfo):
         argDict : `dict`
             The argument dictionary used to construct the visit info, modified in place
         """
-        super(ComCamMakeRawVisitInfo, self).setArgDict(md, argDict)
+        super(AuxTelMakeRawVisitInfo, self).setArgDict(md, argDict)
         argDict["darkTime"] = self.popFloat(md, "DARKTIME")
 
         # Done setting argDict; check values now that all the header keywords have been consumed
@@ -112,21 +112,21 @@ def assemble_raw(dataId, componentInfo, cls):
     #
     # We need to standardize, but have no legal way to call std_raw.  The butler should do this for us.
     #
-    ccm = ComCamMapper()
-    exposure = ccm.std_raw(exposure, dataId)
+    atm = AuxTelMapper()
+    exposure = atm.std_raw(exposure, dataId)
 
     return exposure
 
 
-class ComCamMapper(CameraMapper):
-    """The Mapper for ComCam."""
+class AuxTelMapper(CameraMapper):
+    """The Mapper for the AuxTel."""
 
-    packageName = 'obs_comCam'
-    MakeRawVisitInfoClass = ComCamMakeRawVisitInfo
+    packageName = 'obs_auxTel'
+    MakeRawVisitInfoClass = AuxTelMakeRawVisitInfo
 
     def __init__(self, inputPolicy=None, **kwargs):
-        """Initialization for the ComCam Mapper."""
-        policyFile = dafPersist.Policy.defaultPolicyFile(self.packageName, "comCamMapper.yaml", "policy")
+        """Initialization for the AuxTel Mapper."""
+        policyFile = dafPersist.Policy.defaultPolicyFile(self.packageName, "auxTelMapper.yaml", "policy")
         policy = dafPersist.Policy(policyFile)
 
         CameraMapper.__init__(self, policy, os.path.dirname(policyFile), **kwargs)
@@ -144,7 +144,7 @@ class ComCamMapper(CameraMapper):
 
     def _makeCamera(self, policy, repositoryDir):
         """Make a camera (instance of lsst.afw.cameraGeom.Camera) describing the camera geometry."""
-        return ComCam()
+        return AuxTel()
 
     def _extractDetectorName(self, dataId):
         return dataId["ccd"]

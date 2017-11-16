@@ -16,7 +16,7 @@ exposures:
     tables: raw
     template: raw/%(run)s/%(ccd)s/%(ccd)s-%(visit)06d.fits[0]
   raw:
-    assembler: lsst.obs.comCam.comCamMapper.assemble_raw
+    assembler: lsst.obs.auxTel.auxTelMapper.assemble_raw
     composite:
       raw_amp:
         datasetType: raw_amp
