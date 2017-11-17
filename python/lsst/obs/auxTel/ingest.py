@@ -47,15 +47,14 @@ class AuxTelParseTask(ParseTask):
         pathComponents = pathname.split("/")
         if len(pathComponents) < 0:
             raise RuntimeError("Path %s is too short to deduce raftID" % pathname)
-        raftId, runId, acquisitionType, testVersion, jobId, sensorLocationInRaft = pathComponents[-6:]
-        if runId != phuInfo['run']:
-            raise RuntimeError("Expected runId %s, found %s from path %s" % phuInfo['run'], runId, pathname)
+        sensorId, acquisitionType, testVersion, runId = pathComponents[-4:]
 
-        phuInfo['raftId'] = raftId # also in the header - RAFTNAME
+        if phuInfo['lsstSerial'] != sensorId:
+            raise RuntimeError("Serial mismatch: the header says %s but found %s from"
+                               "path %s"%(phuInfo['lsstSerial'], sensorId, pathname))
+        phuInfo['run'] = runId  # NOT in the header
         phuInfo['field'] = acquisitionType # NOT in the header
-        phuInfo['jobId'] = int(jobId) #  NOT in the header
-        phuInfo['raft'] = 'R00'
-        phuInfo['ccd'] = sensorLocationInRaft # NOT in the header
+        phuInfo['ccd'] = 0  # There is only one ccd in this camera
 
         return phuInfo, infoList
 
