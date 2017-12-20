@@ -38,6 +38,7 @@ AMP_ITL : &AMP_ITL
 
     rawBBox                 : [[0,    0], [544,    2048]]  # total size of one amp's raw data
 
+  # name of section     : [[start,start], [width, height]] # start is zero-based, length=length of arr
     rawDataBBox             : [[3,    0], [509,    2000]]  # data region in raw data
     rawSerialPrescanBBox    : [[0,    0], [3,      2000]]  # serial prescan (often == extended)
     rawSerialOverscanBBox   : [[512,  0], [32,     2000]]  # serial overscan
@@ -63,7 +64,8 @@ CCD : &CCD
     refpos : [.nan, .nan]
     offset : [.nan, .nan]
     # This is the orientation we need to put the serial direction along the x-axis
-    bbox : [[0, 0], [4095, 4003]]
+    bbox : [[0, 0], [4071, 3999]]   # This is a bbox defined by corners rather than extent.
+                                    # Needs to be made consistent with others. TODO: DM-13098
     pixelSize : [0.010, 0.010]          # in mm
     transformDict : {nativeSys : 'Pixels', transforms : None}
     transposeDetector : False
