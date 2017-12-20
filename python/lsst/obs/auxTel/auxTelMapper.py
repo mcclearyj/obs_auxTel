@@ -138,9 +138,11 @@ class AuxTelMapper(CameraMapper):
 
         # self.filterIdMap = {}           # where is this used?  Generating objIds??
 
-        afwImageUtils.defineFilter('NONE', 0.0, alias=['no_filter', "OPEN"])
+        afwImageUtils.defineFilter('NONE', 0.0, alias=['no_filter', 'OPEN', 'empty'])
         afwImageUtils.defineFilter('275CutOn', 0.0, alias=[])
         afwImageUtils.defineFilter('550CutOn', 0.0, alias=[])
+        afwImageUtils.defineFilter('green', 0.0, alias=[])
+        afwImageUtils.defineFilter('blue', 0.0, alias=[])
 
     def _makeCamera(self, policy, repositoryDir):
         """Make a camera (instance of lsst.afw.cameraGeom.Camera) describing the camera geometry."""
