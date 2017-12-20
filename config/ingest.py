@@ -26,6 +26,7 @@ config.parse.defaults = {
 config.parse.hdu = 0
 
 config.register.columns = {
+    # int is *probably* OK for run, but I'm not sure, and it's useful to be the same as for obs_comCam
     'run': 'text',
     'visit': 'int',
     'basename': 'text',
@@ -33,7 +34,7 @@ config.register.columns = {
     'date': 'text',
     'dateObs': 'text',
     'expTime': 'double',
-    'ccd': 'text',
+    'ccd': 'int',
     'object': 'text',
     'imageType': 'text',
     'testType': 'text',
