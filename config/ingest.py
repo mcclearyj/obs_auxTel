@@ -22,7 +22,6 @@ config.parse.defaults = {
 config.parse.hdu = 0
 
 config.register.columns = {
-    # int is *probably* OK for run, but I'm not sure, and it's useful to be the same as for obs_comCam
     'run': 'text',
     'visit': 'int',
     'basename': 'text',
