@@ -37,4 +37,7 @@ config.register.columns = {
     'field': 'text',
     'wavelength': 'int',
 }
+# this can be cut down if the registry becomes impractically large
 config.register.visit = list(config.register.columns.keys())
+
+config.register.unique = ['visit']
