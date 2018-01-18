@@ -11,10 +11,6 @@ config.parse.translation = {
     'lsstSerial': 'LSST_NUM',
     'date': 'DATE-OBS',
     'dateObs': 'DATE-OBS',
-    # Note that we DO ingest a run number, but it comes from the path and not the header,
-    # so an entry here generates a warning. It is picked up in the ingest.py override
-    # of getInfo() and registers correctly like this with the line below left commented out.
-    # 'run': 'RUNNUM'
 }
 config.parse.translators = {
     'visit': 'translate_visit',
