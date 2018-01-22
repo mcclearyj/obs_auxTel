@@ -112,8 +112,8 @@ def assemble_raw(dataId, componentInfo, cls):
     #
     # We need to standardize, but have no legal way to call std_raw.  The butler should do this for us.
     #
-    atm = AuxTelMapper()
-    exposure = atm.std_raw(exposure, dataId)
+    auxTelMapper = AuxTelMapper()
+    exposure = auxTelMapper.std_raw(exposure, dataId)
 
     return exposure
 
