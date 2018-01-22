@@ -136,8 +136,6 @@ class AuxTelMapper(CameraMapper):
         for d in (self.mappings, self.exposures):
             d['raw'] = d['_raw']
 
-        # self.filterIdMap = {}           # where is this used?  Generating objIds??
-
         afwImageUtils.defineFilter('NONE', 0.0, alias=['no_filter', 'OPEN', 'empty'])
         afwImageUtils.defineFilter('275CutOn', 0.0, alias=[])
         afwImageUtils.defineFilter('550CutOn', 0.0, alias=[])
