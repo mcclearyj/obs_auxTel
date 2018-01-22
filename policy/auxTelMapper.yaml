@@ -33,7 +33,7 @@ exposures:
     tables: raw
     template: raw/%(ccd)s/%(ccd)s-%(visit)06d.fits[%(channel)d]
   postISRCCD:  # exposure after instrument signature removal
-    template: 'postISRCCD/postISRCCD_v%(visit)d_%(ccd)s_f%(filter)s.fits'
+    template: postISRCCD/postISRCCD_v%(visit)d_%(ccd)s_f%(filter)s.fits
   calexp:  # exposure after CharImageTask and CalibrateTask
     template: calexp/calexp_v%(visit)d_%(ccd)s_f%(filter)s.fits
   icExp:  # exposure after running CharImageTask, but uncalibrated
