@@ -2,7 +2,7 @@ from lsst.obs.auxTel.ingest import AuxTelCalibsParseTask
 config.parse.retarget(AuxTelCalibsParseTask)
 
 config.register.columns = {'filter': 'text',
-                           'ccd': 'text',
+                           'ccd': 'int',
                            'calibDate': 'text',
                            'validStart': 'text',
                            'validEnd': 'text',
