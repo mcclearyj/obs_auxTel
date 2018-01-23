@@ -26,8 +26,6 @@ from __future__ import division, print_function
 import os
 
 import lsst.afw.image.utils as afwImageUtils
-import lsst.afw.geom as afwGeom
-import lsst.afw.image as afwImage
 from lsst.obs.base import CameraMapper, MakeRawVisitInfo
 import lsst.daf.persistence as dafPersist
 
@@ -322,83 +320,3 @@ class AuxTelMapper(CameraMapper):
         """
         return self._standardizeExposure(self.exposures['raw_amp'], item, dataId,
                                          trimmed=False, setVisitInfo=False)
-
-    def X_validate(self, dataId):
-        """Method has X_ prepended and thus not currently live."""
-        visit = dataId.get("visit")
-        if visit is not None and not isinstance(visit, int):
-            dataId["visit"] = int(visit)
-        return dataId
-
-    def X__setCcdExposureId(self, propertyList, dataId):
-        """Method has X_ prepended and thus not currently live."""
-        propertyList.set("Computed_ccdExposureId", self._computeCcdExposureId(dataId))
-        return propertyList
-
-    def X_bypass_defects(self, datasetType, pythonType, location, dataId):
-        """Method has X_ prepended and thus not currently live.
-
-        Since we have no defects, return an empty list. Fix this when defects exist.
-        """
-        return [afwImage.DefectBase(afwGeom.Box2I(afwGeom.Point2I(x0, y0), afwGeom.Point2I(x1, y1))) for
-                x0, y0, x1, y1 in (
-                    # These may be hot pixels, but we'll treat them as bad until we can get more data
-                    (3801, 666, 3805, 669),
-                    (3934, 582, 3936, 589),
-        )]
-
-    def X__defectLookup(self, dataId):
-        """Method has X_ prepended and thus not currently live.
-
-        Also, method is hacky method and should not exist.
-        This function needs to return a non-None value otherwise the mapper gives up
-        on trying to find the defects.  I wanted to be able to return a list of defects constructed
-        in code rather than reconstituted from persisted files, so I return a dummy value.
-        """
-        return "this_is_a_hack"
-
-    def X_standardizeCalib(self, dataset, item, dataId):
-        """Standardize a calibration image read in by the butler.
-
-        Some calibrations are stored on disk as Images instead of MaskedImages
-        or Exposures.  Here, we convert it to an Exposure.
-
-        @param dataset  Dataset type (e.g., "bias", "dark" or "flat")
-        @param item  The item read by the butler
-        @param dataId  The data identifier (unused, included for future flexibility)
-        @return standardized Exposure
-        """
-        mapping = self.calibrations[dataset]
-        if "MaskedImage" in mapping.python:
-            exp = afwImage.makeExposure(item)
-        elif "Image" in mapping.python:
-            if hasattr(item, "getImage"):  # For DecoratedImageX
-                item = item.getImage()
-                exp = afwImage.makeExposure(afwImage.makeMaskedImage(item))
-        elif "Exposure" in mapping.python:
-            exp = item
-        else:
-            raise RuntimeError("Unrecognised python type: %s" % mapping.python)
-
-        parent = super(CameraMapper, self)
-        if hasattr(parent, "std_" + dataset):
-            return getattr(parent, "std_" + dataset)(exp, dataId)
-        return self._standardizeExposure(mapping, exp, dataId)
-
-    def X_std_bias(self, item, dataId):
-        """Method has X_ prepended and thus not currently live."""
-        return self.standardizeCalib("bias", item, dataId)
-
-    def X_std_dark(self, item, dataId):
-        """Method has X_ prepended and thus not currently live."""
-        exp = self.standardizeCalib("dark", item, dataId)
-        # exp.getCalib().setExptime(1.0)
-        return exp
-
-    def X_std_flat(self, item, dataId):
-        """Method has X_ prepended and thus not currently live."""
-        return self.standardizeCalib("flat", item, dataId)
-
-    def X_std_fringe(self, item, dataId):
-        """Method has X_ prepended and thus not currently live."""
-        return self.standardizeCalib("flat", item, dataId)
