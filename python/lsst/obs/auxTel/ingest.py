@@ -1,3 +1,5 @@
+""""ParseTask and CalibsParseTask for the LSST auxiliary telescope."""
+
 from __future__ import division, print_function
 import os
 import re
@@ -9,18 +11,19 @@ EXTENSIONS = ["fits", "gz", "fz"]  # Filename extensions to strip off
 
 
 class AuxTelParseTask(ParseTask):
-    """Parser suitable for auxTel data
+    """Parser suitable for auxTel data.
 
     See https://docushare.lsstcorp.org/docushare/dsweb/Get/Version-43119/FITS_Raft.pdf
     """
 
     def __init__(self, config, *args, **kwargs):
+        """Initialization for the AuxTel ParseTask."""
         super(ParseTask, self).__init__(config, *args, **kwargs)
 
     def getInfo(self, filename):
-        """ Get the basename and other data which is only available from the filename/path.
+        """Get the basename and other data which is only available from the filename/path.
 
-        This seems fragile, but this is how the teststand data will *always* be written out, 
+        This seems fragile, but this is how the teststand data will *always* be written out,
         as the software has been "frozen" as they are now in production mode.
 
         Parameters
@@ -53,7 +56,7 @@ class AuxTelParseTask(ParseTask):
             raise RuntimeError("Serial mismatch: the header says %s but found %s from"
                                "path %s"%(phuInfo['lsstSerial'], sensorId, pathname))
         phuInfo['run'] = runId  # NOT in the header
-        phuInfo['field'] = acquisitionType # NOT in the header
+        phuInfo['field'] = acquisitionType  # NOT in the header
         phuInfo['ccd'] = 0  # There is only one ccd in this camera
 
         return phuInfo, infoList
@@ -84,12 +87,12 @@ class AuxTelParseTask(ParseTask):
         wl = int(round(raw_wl))
         if abs(raw_wl-wl) >= 0.1:
             logger = lsstLog.Log.getLogger('obs.auxTel.ingest')
-            logger.warn(
-                'Translated significantly non-integer wavelength; %s is more than 0.1nm from an integer value', raw_wl)
+            logger.warn('Translated significantly non-integer wavelength; '
+                        '%s is more than 0.1nm from an integer value', raw_wl)
         return wl
 
     def translate_visit(self, md):
-        """Generate a unique visit from the timestamp
+        """Generate a unique visit from the timestamp.
 
         It might be better to use the 1000*runNo + seqNo, but the latter isn't currently set
 
@@ -107,23 +110,39 @@ class AuxTelParseTask(ParseTask):
         mmjd = mjd - 55197              # relative to 2010-01-01, just to make the visits a tiny bit smaller
         return int(1e5*mmjd)            # 86400s per day, so we need this resolution
 
-##############################################################################################################
+#############################################################################################################
 
 
 class AuxTelCalibsParseTask(CalibsParseTask):
-    """Parser for calibs"""
+    """Parser for calibs."""
 
     def _translateFromCalibId(self, field, md):
-        """Get a value from the CALIB_ID written by constructCalibs"""
+        """Get a value from the CALIB_ID written by constructCalibs.
+
+        Parameters
+        ----------
+        field : `string`
+            Item to retrieve/translate
+        md : `lsst.daf.base.PropertyList or PropertySet`
+            The metadata
+
+        Returns
+        -------
+        field : `string`
+            The translated item
+        """
         data = md.get("CALIB_ID")
         match = re.search(".*%s=(\S+)" % field, data)
         return match.groups()[0]
 
     def translate_ccd(self, md):
+        """Redirect the auto-generated translate function to the relevant translator."""
         return self._translateFromCalibId("ccd", md)
 
     def translate_filter(self, md):
+        """Redirect the auto-generated translate function to the relevant translator."""
         return self._translateFromCalibId("filter", md)
 
     def translate_calibDate(self, md):
+        """Redirect the auto-generated translate function to the relevant translator."""
         return self._translateFromCalibId("calibDate", md)
