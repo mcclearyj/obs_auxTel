@@ -80,7 +80,7 @@ def assemble_raw(dataId, componentInfo, cls):
         the data ID
     componentInfo : `dict`
         dict containing the components, as defined by the composite definition in the mapper policy
-    cls : 'object'
+    cls : `object`
         unused
 
     Returns
@@ -143,25 +143,71 @@ class AuxTelMapper(CameraMapper):
         afwImageUtils.defineFilter('blue', 0.0, alias=[])
 
     def _makeCamera(self, policy, repositoryDir):
-        """Make a camera (instance of lsst.afw.cameraGeom.Camera) describing the camera geometry."""
+        """Make a camera (instance of lsst.afw.cameraGeom.Camera) describing the camera geometry.
+
+        Parameters
+        ----------
+        policy : anything - unused
+            Unused
+
+        repositoryDir : anything - unused
+            Unused
+
+        Returns
+        -------
+        camera : `lsst.afw.cameraGeom.Camera`
+            The camera object
+        """
         return AuxTel()
 
     def _extractDetectorName(self, dataId):
+        """Extract the dector name from a dataId.
+
+        Parameters
+        ----------
+        dataId : `lsst.daf.persistence.dataId.DataId`
+            The data ID
+
+        Returns
+        -------
+        detectorName : `int`
+            The detector name
+        """
         return dataId["ccd"]
 
     def _computeCcdExposureId(self, dataId):
         """Compute the 64-bit (long) identifier for a CCD exposure.
 
-        @param dataId (dict) Data identifier with visit
+        Parameters
+        ----------
+        dataId : `lsst.daf.persistence.dataId.DataId`
+            The data ID
+
+        Returns
+        -------
+        CcdExposureId : `int`
+            The CcdExposureId
         """
         visit = dataId['visit']
         return int(visit)
 
     def query_raw_amp(self, format, dataId):
-        """!Return a list of tuples of values of the fields specified in format, in order.
+        """Return a list of tuples of values of the fields specified in format, in order.
 
-        @param format  The desired set of keys
-        @param dataId  A possible-incomplete dataId
+        The composite type "raw" doesn't provide e.g. query_raw, so we defined type _raw in the .paf file
+        with the same template, and forward requests as necessary
+
+        Parameters
+        ----------
+        format : iterable
+            The desired set of keys
+        dataId : `lsst.daf.persistence.dataId.DataId`
+            The (possibly-incomplete) dataId
+
+        Returns
+        -------
+        dataIds : `list` of values, or `list` of `tuples` of channel/value pairs
+            Iterable of dataId values, or channel/value pairs
         """
         nChannel = 16                   # number of possible channels, 1..nChannel
 
@@ -189,10 +235,6 @@ class AuxTelMapper(CameraMapper):
                     dids.append(tuple(did))
 
         return dids
-    #
-    # The composite type "raw" doesn't provide e.g. query_raw, so we defined type _raw in the .paf file
-    # with the same template, and forward requests as necessary
-    #
 
     def query_raw(self, *args, **kwargs):
         """Magic method that is called automatically if it exists.
@@ -230,28 +272,54 @@ class AuxTelMapper(CameraMapper):
         return self.map__raw_visitInfo(*args, **kwargs)
 
     def bypass_raw_visitInfo(self, datasetType, pythonType, location, dataId):
-        if False:
-            # afwImage.readMetadata() doesn't honour [hdu] suffixes in filenames
-            #
-            # We could workaround this by moving the "else" block into obs_base,
-            # or by changing afw
-            #
-            return self.bypass__raw_visitInfo(datasetType, pythonType, location, dataId)
+        """Work around for reading metadata from multi-HDU files.
+
+        afwImage.readMetadata() doesn't honour [hdu] suffixes in filenames.
+
+        Parameters
+        ----------
+        datasetType : anything, unused
+            Unused
+        pythonType : anything, unused
+            Unused
+        location : `lsst.daf.persistence.ButlerLocation`
+            Butler location
+        dataId : anything, unused
+            Unused
+
+        Returns
+        -------
+        visitInfo : `lsst.afw.image.visitInfo`
+            The visitInfo
+        """
+        import re
+        import lsst.afw.image as afwImage
+
+        fileName = location.getLocationsWithRoot()[0]
+        mat = re.search(r"\[(\d+)\]$", fileName)
+        if mat:
+            hdu = int(mat.group(1))
+            md = afwImage.readMetadata(fileName, hdu=hdu)
         else:
-            import re
-            import lsst.afw.image as afwImage
+            md = afwImage.readMetadata(fileName)  # or hdu = INT_MIN; -(1 << 31)
 
-            fileName = location.getLocationsWithRoot()[0]
-            mat = re.search(r"\[(\d+)\]$", fileName)
-            if mat:
-                hdu = int(mat.group(1))
-                md = afwImage.readMetadata(fileName, hdu=hdu)
-            else:
-                md = afwImage.readMetadata(fileName)  # or hdu = INT_MIN; -(1 << 31)
-
-            return afwImage.VisitInfo(md)
+        return afwImage.VisitInfo(md)
 
     def std_raw_amp(self, item, dataId):
+        """Amplifier-wise standardization of image-like objects.
+
+        Parameters
+        ----------
+        item : image-like object; any of `lsst.afw.image.Exposure`, `lsst.afw.image.DecoratedImage`,
+               `lsst.afw.image.Image`, or `lsst.afw.image.MaskedImage`
+        dataId : `lsst.daf.persistence.dataId.DataId`
+            The data ID
+
+        Returns
+        -------
+        exp : `lsst.afw.image.Exposure`
+            The standardized exposure
+        """
         return self._standardizeExposure(self.exposures['raw_amp'], item, dataId,
                                          trimmed=False, setVisitInfo=False)
 
