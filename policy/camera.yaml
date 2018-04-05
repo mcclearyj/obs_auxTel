@@ -94,7 +94,7 @@ CCDs :
            "00": &A10
              <<: *AMP      # unclear wth << is doing
              hdu : 1
-             flipXY : [True, False]
+             flipXY : [True, True]
              ixy : [0, 0]
-             gain : 1.093
-             readNoise : 6.66
+             gain : 0.3 # electrons per ADU
+             readNoise : 12 #I think? 12 electrons RMS... 
