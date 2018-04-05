@@ -1,4 +1,4 @@
-# obs_auxTel
+# obs_auxTelBIT
 This fork of obs_auxTel will form the backbone for obs_superbit!
 Based on the recommendation of Simon Krughoff, so blame him
 
