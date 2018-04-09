@@ -1,0 +1,81 @@
+Initial setup:
+
+source ~/setup_stack.sh
+source /opt/astro/SL64/bin/setup.astro.sh
+module load gcc/4.8.2
+
+
+cd /path/to/obs/package/destination
+
+git clone https://github.com/lsst/obs_monocam
+
+
+setup -j obs_monocam -r /path/to/obs/package/destination/obs_monocam
+
+scons opt=3 -j 10
+
+
+
+------------
+Processing instructions:
+
+
+Make a path for the new repo:
+mkdir /some/path/processing
+
+
+Put a mapper file in the root of the processing directory:
+echo "lsst.obs.monocam.monocamMapper.MonocamMapper" > processing/_mapper
+cp /some/path/processing/_mapper /some/path/processing
+
+
+Ingest images into the new repo located above:
+ingestImages.py /some/path/processing /some/path/calibs/*.fits
+
+
+Build the master bias frame, outputting the frame to the calib repo in the arg after --calib
+constructBias.py /some/path/processing --calib /some/path/processing/CALIB --rerun 1 --cores 4 --batch-type=smp --id object='BIAS'
+
+
+Ingest the master bias that we produced:
+ingestCalibs.py /some/path/processing --calibType bias /some/path/processing/CALIB/bias/*/* --validity 9999
+
+
+Now construct the master dark frame, with the bias subtraction turned on explicitly:
+constructDark.py /some/path/processing --calib /some/path/processing/CALIB --rerun 1 --cores 4 --batch-type=smp --id object='DARK' -c isr.doBias=True
+
+
+Now ingest that master dark from:
+ingestCalibs.py /some/path/processing --calibType dark /some/path/processing/CALIB/dark/*/* --validity 9999
+
+
+Now we produce flatfield images for each filter, using the master bias and master dark frames from before:
+constructFlat.py /some/path/processing --calib /some/path/processing/CALIB --rerun flat-test --id object='FLAT' filter='U' --cores 8 --job flat-U -c isr.doBias=True isr.doDark=True
+
+constructFlat.py /some/path/processing --calib /some/path/processing/CALIB --rerun flat-test --id object='FLAT' filter='SDSSG' --cores 8 --job flat-SDSSG -c isr.doBias=True isr.doDark=True
+
+constructFlat.py /some/path/processing --calib /some/path/processing/CALIB --rerun flat-test --id object='FLAT' filter='SDSSR' --cores 8 --job flat-SDSSR -c isr.doBias=True isr.doDark=True
+
+constructFlat.py /some/path/processing --calib /some/path/processing/CALIB --rerun flat-test --id object='FLAT' filter='SDSSI' --cores 8 --job flat-SDSSI -c isr.doBias=True isr.doDark=True
+
+constructFlat.py /some/path/processing --calib /some/path/processing/CALIB --rerun flat-test --id object='FLAT' filter='Z' --cores 8 --job flat-Z -c isr.doBias=True isr.doDark=True
+
+constructFlat.py /some/path/processing --calib /some/path/processing/CALIB --rerun flat-test --id object='FLAT' filter='Y3' --cores 8 --job flat-Y3 -c isr.doBias=True isr.doDark=True
+
+constructFlat.py /some/path/processing --calib /some/path/processing/CALIB --rerun flat-test --id object='FLAT' filter='Y4' --cores 8 --job flat-Y4 -c isr.doBias=True isr.doDark=True
+
+constructFlat.py /some/path/processing --calib /some/path/processing/CALIB --rerun flat-test --id object='FLAT' filter='X' --cores 8 --job flat-X -c isr.doBias=True isr.doDark=True
+
+constructFlat.py /some/path/processing --calib /some/path/processing/CALIB --rerun flat-test --id object='FLAT' filter='GRATING' --cores 8 --job flat-GRATING -c isr.doBias=True isr.doDark=True
+
+
+Now we ingest the master flats we produced:
+ingestCalibs.py /some/path/processing --calibType flat /some/path/processing/CALIB/flat/*/*/* --validity 9999
+
+
+Now we actually ingest the sky images!
+ingestImages.py /some/path/processing /some/path/1m3/*.fits
+
+
+And NOW we process the data! :open_mouth:
+processCcd.py /some/path/processing/ --calib CALIB --rerun test_1 --id visit=1333 --doraise
