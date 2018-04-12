@@ -26,7 +26,8 @@
 # Each has sixteen amplifiers with names like "00".."07" and "10".."17"
 
 name : "superBIT"
-plateScale : 41.818                     # plate scale in arcseconds on sky/mm # Based on pix scale of 0.23 arcsec/pix
+plateScale : 41.818                     # plate scale in arcseconds on sky/mm # Based on pix scale of 0.24 arcsec/pix
+                                        # I think that this stays the same
 radialCoeffs : None                     # radial distortion coefficients (c_0 + c_1 r + c_2 r^2 + ...)
                                         # JEM -- unsure about this radialCoeffs deal so I set it to None for now
 
@@ -37,15 +38,15 @@ AMP_ITL : &AMP_ITL
     # trimmed
     readCorner : LL
 
-    rawBBox                 : [[0,    0], [6644, 4452]]  # total size of one amp's raw data
+    rawBBox                 : [[0,    0], [2048, 2048]]  # total size of one amp's raw data
 
   # name of section     : [[start,start], [width, height]] # start is zero-based, length=length of arr
-  # Y'ALL JEM guesses "parallel" means to direction of readout, "serial" is perpendicular to readout direction?
-    rawDataBBox             : [[33,  33], [6576,  4384]]  # data region in raw data
-    rawSerialPrescanBBox    : [[21,  22], [12,     4432]]  # serial prescan (often == extended)
-    rawSerialOverscanBBox   : [[1,  22],  [20,     4432]]  # serial overscan # I don't know how to deweight serial overscan
-    rawParallelPrescanBBox  : [[13, 4432], [6632,    12]]  # pixels digitised before first parallel transfer
-    rawParallelOverscanBBox : [[1, 4433], [6632,      20]]  # parallel overscan
+  # Y'ALL JEM guesses "parallel" means to direction of readout, OK?
+    rawDataBBox             : [[0,  0], [2048,  2048]]  # data region in raw data
+    rawSerialPrescanBBox    : [[0,  0], [0,     0]]  # serial prescan (often == extended)
+    rawSerialOverscanBBox   : [[0,  0],  [0,     0]]  # serial overscan # I don't know how to deweight serial overscan
+    rawParallelPrescanBBox  : [[0, 0], [0,    0]]  # pixels digitised before first parallel transfer
+    rawParallelOverscanBBox : [[0, 0], [0,      0]]  # parallel overscan
 
     saturation : 20000                  # saturation level, JEM set this in electrons per pixel well depth
 
@@ -67,7 +68,7 @@ CCD : &CCD
     refpos : [.nan, .nan]
     offset : [.nan, .nan]
     # This is the orientation we need to put the serial direction along the x-axis
-    bbox : [[0, 0], [6644, 4452]]   # This is a bbox defined by corners rather than extent.
+    bbox : [[0, 0], [2047, 2047]]   # This is a bbox defined by corners rather than extent.
                                     # Needs to be made consistent with others. TODO: DM-13098
     pixelSize : [0.0055, 0.0055]          # in mm
     transformDict : {nativeSys : 'Pixels', transforms : None}
@@ -87,14 +88,14 @@ CCDs :
       << : *CCD
       id : 0                            # Not quite sure what this is for (original comment in AuxTel)
       serial : KAI-29050                # JEM -- I think it's because you can't get around raft/sensor/array 
-      refpos : [3287.5, 2191.5]         # native to DMstack software. Also that's not our serial number
-      offset : [ -63.748000000000005, -185.59199999999998]
+      refpos : [1024.5, 1024.5]         # native to DMstack software. Also that's not our serial number
+      offset : [ 0, 0]
 
       amplifiers:      # these take the form 00-07, 10-17, ie single digit row/col concatenated, not ints
            "00": &A10
              <<: *AMP      # unclear wth << is doing
              hdu : 1
-             flipXY : [True, True]
+             flipXY : [False, False]
              ixy : [0, 0]
              gain : 0.3 # electrons per ADU
              readNoise : 12 #I think? 12 electrons RMS... 
